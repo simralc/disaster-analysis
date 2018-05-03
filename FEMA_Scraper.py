@@ -11,7 +11,7 @@ import urllib.parse as parse
 import re
 
 
-# In[13]:
+# In[15]:
 
 
 ### Get Amount of Funding Raised/Approved for a Hurricane
@@ -71,7 +71,10 @@ def searchPageforSpending(soup, disaster):
         if code != 200:
             continue
         dissumsoup = BeautifulSoup(content, 'html.parser')
-        snaps = dissumsoup.find('div', class_="disaster-snapshot col-lg-4 col-md-12").find_all('p')
+        snaps = dissumsoup.find('div', class_="disaster-snapshot col-lg-4 col-md-12")
+        if snaps == None:
+            continue 
+        snaps = snaps.find_all('p')
         texts = [p.text for p in snaps if '$' in p.text]
         amounts = [amount.findall(text)[0] for text in texts]
         values = [float(value.replace(',', '')) for value in amounts]
@@ -109,7 +112,7 @@ def getAllFunding(disastersinfo, searchParams):
     return fundingRaised
 
 
-# In[11]:
+# In[16]:
 
 
 keys = {'field_dv2_state_territory_tribal_value_selective' : 'All',
