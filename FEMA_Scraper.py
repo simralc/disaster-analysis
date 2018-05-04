@@ -11,7 +11,7 @@ import urllib.parse as parse
 import re
 
 
-# In[29]:
+# In[65]:
 
 
 ### Get Amount of Funding Raised/Approved for a Hurricane
@@ -29,8 +29,8 @@ def retrieve_html(url):
     r = requests.get(url)
     return (r.status_code, r.content)
 
-def getAllLocations(url):
-    code, content = retrieve_html(url)
+def getAllLocations():
+    code, content = retrieve_html('https://www.fema.gov/disasters')
     if code != 200:
         print('Could not Find Locations')
         return None
@@ -57,6 +57,23 @@ def getNewUrl(source, keys, params):
     keys['field_dv2_incident_end_value%5Bvalue%5D%5Byear%5D'] = params['endYear']
     return (params['source'] + '?' + parse.urlencode(keys)).replace('255', '5')
 
+def findNewSpend(snapshots, amount):
+    snaps = snapshots.find_all('p')
+    texts = [p.text for p in snaps if '$' in p.text]
+    amounts = [amount.findall(text)[0] for text in texts]
+    values = [float(value.replace(',', '')) for value in amounts]
+    return sum(values)
+    
+def getOldSpend(snapshots, amount):
+    if snapshots == None:
+        return 0
+    p = snapshots.find('p', class_='disaster-amount')
+    if p == None:
+        return 0
+    else:
+        value = amount.findall(p.text)[0]
+        return float(value.replace(',', ''))
+    
 def searchPageforSpending(soup, disaster):
     b = soup.find('div', class_="view-content")
     if b == None:
@@ -73,12 +90,11 @@ def searchPageforSpending(soup, disaster):
         dissumsoup = BeautifulSoup(content, 'html.parser')
         snaps = dissumsoup.find('div', class_="disaster-snapshot col-lg-4 col-md-12")
         if snaps == None:
-            continue 
-        snaps = snaps.find_all('p')
-        texts = [p.text for p in snaps if '$' in p.text]
-        amounts = [amount.findall(text)[0] for text in texts]
-        values = [float(value.replace(',', '')) for value in amounts]
-        result += sum(values)
+            disastersnap = dissumsoup.find('div', class_='disaster-financials ia col-lg-6') 
+            publicsnap = dissumsoup.find('div', class_='disaster-financials pa col-lg-6')
+            result += getOldSpend(disastersnap, amount) + getOldSpend(publicsnap, amount)
+        else:
+            result += findNewSpend(snaps, amount)
         time.sleep(0.01)
     return result
 
@@ -99,9 +115,10 @@ def getRaisedFunds(params, atts):
     return totalSpending
 
 def getAllFunding(disastersinfo, searchParams):
-    locations = getAllLocations(searchParams['source'])
+    locations = getAllLocations()
     fundingRaised = {}
     for (name, year) in disastersinfo:
+        print("Gathering Data for Hurricane " + name)
         searchParams['startYear'] = year
         searchParams['endYear'] = year
         searchParams['disasterName'] = name
@@ -109,10 +126,11 @@ def getAllFunding(disastersinfo, searchParams):
         for loc in locations:
             searchParams['location'] = loc
             fundingRaised[name][loc] = getRaisedFunds(searchParams, keys)
+        print("Finished with Hurricane " + name)
     return fundingRaised
 
 
-# In[30]:
+# In[66]:
 
 
 keys = {'field_dv2_state_territory_tribal_value_selective' : 'All',
