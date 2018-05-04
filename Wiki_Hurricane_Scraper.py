@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 import matplotlib.pyplot as plt
 
 
-# In[19]:
+# In[26]:
 
 
 def getHurricaneData():
@@ -28,22 +28,19 @@ def getHurricaneData():
     hurricaneDf = pd.DataFrame(columns=columns, index=range(num_rows-1))
     
     for row_marker, row in enumerate(table.find_all('tr')[1:]):
-        Name = row.find('th').text
+        Name = row.find('th').text.strip()
         hurricaneDf.iat[row_marker, 0] = Name
 
         for column_marker, column in enumerate(row.find_all('td')[:3]):
             if column_marker != 1:
-                hurricaneDf.iat[row_marker, column_marker+1] = column.find('span', class_='sorttext').text
+                hurricaneDf.iat[row_marker, column_marker+1] = column.find('span', class_='sorttext').text.strip()
             else:
-                hurricaneDf.iat[row_marker, column_marker+1] = column.find('a').text
+                hurricaneDf.iat[row_marker, column_marker+1] = column.find('a').text.strip()
+
     hurricaneDf['Season'] = hurricaneDf['Season'].apply(lambda x: int(x))
     hurricaneDf['Damage in Billions USD'] = hurricaneDf['Damage in Billions USD'].apply(lambda x: float(x[1:]) * 1000000000)
     return hurricaneDf
 
-def extractData(dataframe):
-    Name = dataframe['Name'].tolist()
-    Season = dataframe['Season'].tolist()
-    
 def plotHurricaneDF(df):
     pltWidth, pltHeight = 20, 10
     plt.rcParams['figure.figsize'] = (pltWidth, pltHeight)
@@ -54,7 +51,7 @@ def plotHurricaneDF(df):
     plt.show()
 
 
-# In[20]:
+# In[25]:
 
 
 # plotHurricaneDF(hurricaneDf)#

@@ -11,7 +11,7 @@ import urllib.parse as parse
 import re
 
 
-# In[15]:
+# In[29]:
 
 
 ### Get Amount of Funding Raised/Approved for a Hurricane
@@ -53,9 +53,9 @@ def getNewUrl(source, keys, params):
     keys['field_dv2_incident_type_tid'] = incidentvals['value']
     keys['field_dv2_incident_begin_value%5Bvalue%5D%5Bmonth%5D'] = months[params['startMonth']]
     keys['field_dv2_incident_begin_value%5Bvalue%5D%5Byear%5D'] = params['startYear']
-    keys['field_dv2_incident_end_value%5Bvalue%5D%5Bmonth%5D'] = params['endMonth']
+    keys['field_dv2_incident_end_value%5Bvalue%5D%5Bmonth%5D'] = months[params['endMonth']]
     keys['field_dv2_incident_end_value%5Bvalue%5D%5Byear%5D'] = params['endYear']
-    return params['source'] + '?' + parse.urlencode(keys)
+    return (params['source'] + '?' + parse.urlencode(keys)).replace('255', '5')
 
 def searchPageforSpending(soup, disaster):
     b = soup.find('div', class_="view-content")
@@ -112,7 +112,7 @@ def getAllFunding(disastersinfo, searchParams):
     return fundingRaised
 
 
-# In[16]:
+# In[30]:
 
 
 keys = {'field_dv2_state_territory_tribal_value_selective' : 'All',
@@ -143,11 +143,4 @@ searchParams = {'source' : 'https://www.fema.gov/disasters',
                 'endMonth' : 'December',
                 'endYear' : 2018,
                 'disasterName' : 'Hurricane Irma'}
-
-
-# In[14]:
-
-
-# disastersInfo = [('Irma', 2017)]
-# getAllFunding(disastersInfo, searchParams)
 
