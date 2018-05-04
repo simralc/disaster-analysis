@@ -11,7 +11,7 @@ YOUTUBE_API_VERSION = "v3"
 __UNKNOWN_STR__ = '__UNKNOWN__'
 __UNKNOWN_INT__ = 0
 
-def youtube_search(q, max_results=50, order="relevance", token=None, location=None, location_radius=None):
+def youtube_search(q, max_results=50, order="viewCount", token=None, location=None, location_radius=None, publishedAfter=None, publishedBefore=None):
 
 	youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, developerKey=DEVELOPER_KEY)
 
@@ -23,7 +23,9 @@ def youtube_search(q, max_results=50, order="relevance", token=None, location=No
 						part="id,snippet", # Part signifies the different types of data you want 
 						maxResults=max_results,
 						location=location,
-						locationRadius=location_radius).execute()
+						locationRadius=location_radius,
+						publishedAfter=publishedAfter,
+						publishedBefore=publishedBefore).execute()
 
 	title, videoId = [], []
 	channelId, channelTitle, categoryId, tags = [], [], [], []
