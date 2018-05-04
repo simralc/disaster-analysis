@@ -27,7 +27,7 @@ plt.rcParams['figure.figsize'] = (pltWidth, pltHeight)
 # In[3]:
 
 
-def getYouTubeVideoInfo(query="Hurricane", maxResults=50, order="viewCount",
+def getYouTubeVideoInfo(query="Hurricane", maxResults=50, order="relevance",
                         token=None, location=None, location_radius=None,
                         publishedAfter=None, publishedBefore=None):
 
@@ -35,7 +35,7 @@ def getYouTubeVideoInfo(query="Hurricane", maxResults=50, order="viewCount",
         result = dict(dol1, **dol2)
         result.update((k, dol1[k] + dol2[k]) for k in set(dol1).intersection(dol2))
         return result
-    
+
     results = None
     nextToken = token
     while True:
@@ -45,12 +45,12 @@ def getYouTubeVideoInfo(query="Hurricane", maxResults=50, order="viewCount",
         except KeyError:
             print('Token Error for query:{} with token:{}'.format(query, nextToken))
             nextToken = None
-        time.sleep(0.1)
+        time.sleep(0.05)
         results = mergeDictOfLists(results, test) if results else test
-    
+
         if nextToken is None:
             break
-    
+
     YouTubeVideoDf = pd.DataFrame(data=results)
     YouTubeVideoDf = YouTubeVideoDf[['title', 'viewCount', 'channelTitle', 'commentCount', 'likeCount',
                                      'dislikeCount', 'tags', 'favoriteCount', 'videoId']]
@@ -60,30 +60,31 @@ def getYouTubeVideoInfo(query="Hurricane", maxResults=50, order="viewCount",
     for i in numericDtypes:
         YouTubeVideoDf[i] = YouTubeVideoDf[i].astype(int)
     YouTubeVideoDf.sort_values(by=['Views'], ascending=False, inplace=True)
-    
+
     return YouTubeVideoDf
 
 
 # In[4]:
 
 
-def getAllDisasterDfs(disasterInfo):
+def getAllDisasterDfs(disasterInfo, startDateFlag=True, endDateFlag=True, order="relevance"):
     """
-    Args: 
+    Args:
         disasterInfo (list of tuples): Each tuple is of the form (Disaster_Name, Year)
     Returns:
-        YouTubeDfsList (list of Dataframes): Each dataframe corresponds to the videos of the 
+        YouTubeDfsList (list of Dataframes): Each dataframe corresponds to the videos of the
                 respective diaster and year from diasterInfo
     """
     disasterDf = {}
-    
+
     for disasterName, year in disasterInfo:
         query = 'Hurricane ' + disasterName
-        publishedAfter = str(year) + '-01-01T00:00:00Z'
-        
-        videoDf = getYouTubeVideoInfo(query=query, publishedAfter=publishedAfter)
+        publishedAfter = str(year) + '-01-01T00:00:00Z' if startDateFlag else None
+        publishedBefore = str(year+2) + '-01-01T00:00:00Z' if endDateFlag else None
+
+        videoDf = getYouTubeVideoInfo(query=query, order=order, publishedAfter=publishedAfter, publishedBefore=publishedBefore)
         disasterDf[disasterName] = videoDf
-    
+
     return disasterDf
 
 
