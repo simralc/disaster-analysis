@@ -71,6 +71,7 @@ class Search:
 				for tweet in self.feed:
 					self.count += 1
 					await output.Tweets(tweet, "", self.config, self.conn)
+			print(self.count)
 		else:
 			self.initial = 0
 
