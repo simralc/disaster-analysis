@@ -205,5 +205,5 @@ async def Tweets(tw, location, config, conn):
 		# Print output
 		if config.Elasticsearch:
 			print(output, end=".", flush=True)
-		else:
-			print(output)
+		# else:
+		# 	print(output)
