@@ -56,7 +56,7 @@ def processYoutubeDf(file):
     df.drop(['Favourite Count', 'Video ID'], axis=1, inplace=True)
     return df
 
-def getCompiledDf(fundingDf, hurricaneDf, tweets_by_hurricane, youtube_by_hurricane):
+def getCompiledDf(hurricaneNames, fundingDf, hurricaneDf, tweets_by_hurricane, youtube_by_hurricane):
     columns = ['Tweet Count', 'Tweet Exposure', 'Hashtags', 'Video Count', 'Video Exposure',
                    'Youtube Tags']
     num_rows = len(tweets_by_hurricane)
@@ -179,7 +179,7 @@ def getDataFrames():
         youtube_by_hurricane[hurricane] = processYoutubeDf('Youtube_Dataframes/' + file)
 
     ### Group Relevant Columns Together Across Df's
-    df = getCompiledDf(fundingDf, hurricaneDf, tweets_by_hurricane, youtube_by_hurricane)
+    df = getCompiledDf(hurricaneNames, fundingDf, hurricaneDf, tweets_by_hurricane, youtube_by_hurricane)
     return fundingDf, df
 
 def adjustInflation(df):
@@ -193,7 +193,7 @@ def adjustInflation(df):
     return inflationAdjustedDf
 
 def normalizeTweetsandYouTube(df):
-    normalizedDf = inflationAdjustedDf.copy()
+    normalizedDf = df.copy()
     normalizedTweetDf = normalizedDf[normalizedDf.Year >= 2010].copy()
     normalizedYouTubeDf = normalizedDf.copy()
 
