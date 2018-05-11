@@ -78,19 +78,18 @@ def getCompiledDf(hurricaneNames, fundingDf, hurricaneDf, tweets_by_hurricane, y
         compiledDf.loc[hurricane, 'Youtube Tags'] = ','.join(allTags)
     return compiledDf
 
-def plotFunding(df, xcol, title = 'Title', xaxis='x', yaxis='y', logx=True, logy=True):
+def plotFunding(df, xcol, legend='Name', title = 'Title', xaxis='x', yaxis='y', logx=True, logy=True):
     temp = df.reset_index()
     temp = temp[temp['Funding']>1]
     if logy:
         temp['Funding'] = np.log(temp['Funding'])
     if logx:
         temp[xcol] = np.log(temp[xcol])
-    plt.figure(figsize=(5,5))
-    sns.lmplot(x=xcol, y='Funding', data=temp, hue='Name', fit_reg=False, legend=True)
+    plt.figure(figsize=(10,10))
+    sns.lmplot(x=xcol, y='Funding', data=temp, hue=legend, fit_reg=False, legend=True)
     plt.title(title)
     plt.xlabel(xaxis)
     plt.ylabel(yaxis)
-    return
 
     
 twitter_users_per_year = {2017: 328,
